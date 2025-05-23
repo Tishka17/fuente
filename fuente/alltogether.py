@@ -2,12 +2,17 @@ from adaptix import Retort
 
 from .converter import to_cfg_model
 
+def _raw(sources, type):
+    for source in sources:
+        for cfg in source.load(type):
+            yield cfg
 
-def parse(first_source, *sources, merger, type):
+def parse(*sources, merger, type):
     retort = Retort()
     typed_dict_model = to_cfg_model(type)
-    first = retort.load(first_source, typed_dict_model)
-    for n, source in enumerate(sources, 1):
-        next = retort.load(source, typed_dict_model)
-        first = merger(n, first, next)
-    return retort.load(first, type)
+
+    cfgs = _raw(sources, typed_dict_model)
+    first_cfg = next(cfgs)
+    for n, next_cfg in enumerate(cfgs, 1):
+        first_cfg = merger(n, first_cfg, next_cfg)
+    return retort.load(first_cfg, type)

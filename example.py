@@ -1,19 +1,25 @@
 from dataclasses import dataclass
 
 from fuente import parse
-from fuente.merger import TypedDictMerge, UseLast, Concat
+from fuente.merger import TypedDictMerge, UseLast, Unite
+from fuente.sources import EnvSource, YamlSource
+
 
 @dataclass
-class A:
-    a: int
-    b: str
-    c: int
-
-source1 = {"a": 1, "b": "x", "c": 2, "d": "skip"}
-source2 = {"a": 2, "b": "y"}
+class Config:
+    log_level: str
+    database_uri: str
+    blacklist: set[str]
 
 
-merger = TypedDictMerge({"a": UseLast(), "b": Concat()})
-res = parse(source1, source2, merger=merger, type=A)
-
-print(res)
+cfg = parse(
+    EnvSource("MYAPP_"),
+    YamlSource(paths=["config.yaml", "config2.yaml"]),
+    merger=TypedDictMerge({
+        "log_level": UseLast(),
+        "database_uri": UseLast(),
+        "blacklist": Unite(),
+    }),
+    type=Config
+)
+print(cfg)
