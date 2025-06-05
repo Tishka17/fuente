@@ -1,4 +1,5 @@
-from adaptix import Retort
+from adaptix import Retort, Provider
+from adaptix._internal.common import VarTuple
 from adaptix._internal.provider.loc_stack_filtering import LocStack
 from adaptix._internal.provider.location import TypeHintLoc
 
@@ -12,25 +13,24 @@ def _raw(sources, type):
         yield source.load(type)
 
 
-default_merge_retort = Retort(
-    recipe=[
-        MergeProvider(),
-        FixedMergeProvider(UseLast()),
-    ]
-)
+class MergeRetort(Retort):
+    def _get_recipe_tail(self) -> VarTuple[Provider]:
+        return super()._get_recipe_tail() + (
+            MergeProvider(),
+            FixedMergeProvider(UseLast()),
+        )
 
-def parse(*sources, merge_recipe, type):
+    def merger(self, type):
+        return self._provide_from_recipe(
+            MergeRequest(LocStack(TypeHintLoc(type=type))),
+        )
 
-    retort = Retort()
+
+def parse(*sources, recipe, type):
     cfgs = _raw(sources, type)
 
-    if not merge_recipe:
-        merge_retort = default_merge_retort
-    else:
-        merge_retort = Retort(recipe=merge_recipe)
-    merger = merge_retort._provide_from_recipe(
-        MergeRequest(LocStack(TypeHintLoc(type=type))),
-    )
+    retort = MergeRetort(recipe=recipe)
+    merger = retort.merger(type)
 
     first_cfg = next(cfgs)
     for n, next_cfg in enumerate(cfgs, 1):

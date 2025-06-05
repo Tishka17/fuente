@@ -25,7 +25,7 @@ cfg = parse(
     EnvSource("MYAPP"),
     YamlSource("config.yaml"),
     YamlSource("config2.yaml"),
-    merge_recipe=[
+    recipe=[
         merge(P[Config].log_level, UseFirst()),
         merge(P[DbConfig].uri, UseFirst()),
         merge(P[Config].blacklist, Unite()),
