@@ -5,11 +5,14 @@ from fuente.merger import TypedDictMerge, UseLast, Unite
 from fuente.sources.env import EnvSource
 from fuente.sources.yaml import YamlSource
 
+@dataclass
+class DbConfig:
+    uri: str
 
 @dataclass
 class Config:
     log_level: str
-    database_uri: str
+    database: DbConfig
     blacklist: set[str]
 
 
