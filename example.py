@@ -2,7 +2,8 @@ from dataclasses import dataclass
 
 from fuente import parse
 from fuente.merger import TypedDictMerge, UseLast, Unite
-from fuente.sources import EnvSource, YamlSource
+from fuente.sources.env import EnvSource
+from fuente.sources.yaml import YamlSource
 
 
 @dataclass
@@ -13,8 +14,9 @@ class Config:
 
 
 cfg = parse(
-    EnvSource("MYAPP_"),
-    YamlSource(paths=["config.yaml", "config2.yaml"]),
+    EnvSource("MYAPP"),
+    YamlSource("config.yaml"),
+    YamlSource("config2.yaml"),
     merger=TypedDictMerge({
         "log_level": UseLast(),
         "database_uri": UseLast(),
