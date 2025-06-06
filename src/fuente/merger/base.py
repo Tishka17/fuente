@@ -1,7 +1,6 @@
 from abc import ABC
 from enum import Enum
-from typing import (
-    TypeVar, Union, )
+from typing import TypeVar
 
 
 class MergeForbiddenError(Exception):
@@ -16,8 +15,8 @@ T = TypeVar("T")
 
 
 class Merger(ABC):
-    def __call__(self, name: str, x: Union[T, Special],
-                 y: Union[T, Special]) -> Union[T, Special]:
+    def __call__(self, name: str, x: T | Special,
+                 y: T | Special) -> T | Special:
         if x is Special.NOT_SET:
             return y
         if y is Special.NOT_SET:

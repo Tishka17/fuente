@@ -1,11 +1,15 @@
-from adaptix import Mediator, CannotProvide, bound
+from adaptix import CannotProvide, Mediator, bound
 from adaptix._internal.model_tools.definitions import InputShape
 from adaptix._internal.provider.fields import input_field_to_loc
-from adaptix._internal.provider.located_request import LocatedRequest, \
-    LocatedRequestMethodsProvider
+from adaptix._internal.provider.located_request import (
+    LocatedRequest,
+    LocatedRequestMethodsProvider,
+)
 from adaptix._internal.provider.methods_provider import method_handler
-from adaptix._internal.provider.shape_provider import \
-    provide_generic_resolved_shape, InputShapeRequest
+from adaptix._internal.provider.shape_provider import (
+    InputShapeRequest,
+    provide_generic_resolved_shape,
+)
 
 from fuente.merger.base import Merger
 from fuente.merger.nested import TypedDictMerge
@@ -48,7 +52,7 @@ class MergeProvider(LocatedRequestMethodsProvider):
             (
                 field.id,
                 mediator.provide(
-                    request.append_loc(input_field_to_loc(field))
+                    request.append_loc(input_field_to_loc(field)),
                 ) or UseLast(),
             )
             for field in shape.fields

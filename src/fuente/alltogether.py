@@ -1,11 +1,14 @@
-from adaptix import Retort, Provider
+from adaptix import Provider, Retort
 from adaptix._internal.common import VarTuple
 from adaptix._internal.provider.loc_stack_filtering import LocStack
 from adaptix._internal.provider.location import TypeHintLoc
 
 from fuente.merger.simple import UseLast
-from fuente.merger_provider import MergeProvider, FixedMergeProvider, \
-    MergeRequest
+from fuente.merger_provider import (
+    FixedMergeProvider,
+    MergeProvider,
+    MergeRequest,
+)
 
 
 def _raw(sources, type):

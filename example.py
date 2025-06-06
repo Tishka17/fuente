@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from adaptix import P
 
 from fuente import parse
-from fuente.merger.simple import UseFirst, Unite
+from fuente.merger.simple import Unite, UseFirst
 from fuente.merger_provider import merge
 from fuente.sources.env import EnvSource
 from fuente.sources.yaml import YamlSource
@@ -31,6 +31,6 @@ cfg = parse(
         merge(P[DbConfig].uri, UseFirst()),
         merge(P[Config].blacklist, Unite()),
     ],
-    type=Config
+    type=Config,
 )
 print(cfg)

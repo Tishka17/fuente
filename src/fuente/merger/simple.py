@@ -1,7 +1,7 @@
-from typing import (
-    TypeVar, Union, Callable, )
+from collections.abc import Callable
+from typing import TypeVar
 
-from .base import Merger, MergeForbiddenError, Special
+from .base import MergeForbiddenError, Merger, Special
 
 T = TypeVar("T")
 
@@ -28,7 +28,7 @@ class ForbidChange(Merger):
         raise MergeForbiddenError(
             f"Override with different value is forbidden for field {name}:\n"
             f"Old: {x}\n"
-            f"New: {y}"
+            f"New: {y}",
         )
 
 
@@ -46,8 +46,8 @@ class ApplyFunc(Merger):
     def __init__(self, func: Callable):
         self.func = func
 
-    def __call__(self, name: str, x: Union[T, Special],
-                 y: Union[T, Special]) -> Union[T, Special]:
+    def __call__(self, name: str, x: T | Special,
+                 y: T | Special) -> T | Special:
         if x is Special.NOT_SET:
             return y
         if y is Special.NOT_SET:

@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=66.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project]
+name = "fuente"
+version = "0.1"
+readme = "README.md"
+authors = [
+    { name = "Andrey Tikhonov", email = "17@itishka.org" },
+]
+license = { text = "Apache-2.0" }
+description = "Config parser with configurable sources"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries",
+    "Typing :: Typed",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    'adaptix',
+]
+
+[project.optional-dependencies]
+yaml = [
+    "pyyaml",
+]

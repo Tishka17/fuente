@@ -1,8 +1,14 @@
 from datetime import datetime
 from typing import Any, TypedDict
 
-from adaptix import Retort, CannotProvide, loader, Chain, name_mapping, \
-    as_is_dumper
+from adaptix import (
+    CannotProvide,
+    Chain,
+    Retort,
+    as_is_dumper,
+    loader,
+    name_mapping,
+)
 from adaptix._internal.provider.loc_stack_filtering import LocStack
 from adaptix._internal.provider.location import TypeHintLoc
 from adaptix._internal.provider.shape_provider import InputShapeRequest
@@ -66,7 +72,7 @@ class FlatSource:
         )
 
     def _load_raw(self):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def load(self, t: Any):
         if self.loading_retort is None:
