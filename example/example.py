@@ -5,6 +5,7 @@ from adaptix import P
 from fuente import parse
 from fuente.merger.simple import Unite, UseFirst
 from fuente.merger_provider import merge
+from fuente.sources.dotenv import DotenvSource
 from fuente.sources.env import EnvSource
 from fuente.sources.yaml import YamlSource
 
@@ -24,6 +25,7 @@ class Config:
 
 cfg = parse(
     EnvSource(prefix="MYAPP"),
+    DotenvSource(path=".env.example", prefix="MYAPP"),
     YamlSource("config.yaml"),
     YamlSource("config2.yaml"),
     recipe=[

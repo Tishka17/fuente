@@ -36,3 +36,6 @@ dependencies = [
 yaml = [
     "pyyaml",
 ]
+dotenv = [
+    "python-dotenv",
+]
