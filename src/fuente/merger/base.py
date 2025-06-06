@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from enum import Enum
 from typing import TypeVar
 
@@ -23,5 +23,6 @@ class Merger(ABC):
             return x
         return self._merge(name, x, y)
 
+    @abstractmethod
     def _merge(self, name: str, x: T, y: T) -> T:
         raise NotImplementedError

@@ -1,10 +1,13 @@
-from adaptix import CannotProvide, Mediator, bound
+from adaptix import CannotProvide, Mediator, Provider, Retort, bound
+from adaptix._internal.common import VarTuple
 from adaptix._internal.model_tools.definitions import InputShape
 from adaptix._internal.provider.fields import input_field_to_loc
+from adaptix._internal.provider.loc_stack_filtering import LocStack
 from adaptix._internal.provider.located_request import (
     LocatedRequest,
     LocatedRequestMethodsProvider,
 )
+from adaptix._internal.provider.location import TypeHintLoc
 from adaptix._internal.provider.methods_provider import method_handler
 from adaptix._internal.provider.shape_provider import (
     InputShapeRequest,
@@ -76,3 +79,16 @@ class FixedMergeProvider(LocatedRequestMethodsProvider):
 
 def merge(predicat, merger):
     return bound(predicat, FixedMergeProvider(merger))
+
+
+class MergeRetort(Retort):
+    def _get_recipe_tail(self) -> VarTuple[Provider]:
+        return super()._get_recipe_tail() + (
+            MergeProvider(),
+            FixedMergeProvider(UseLast()),
+        )
+
+    def merger(self, type):
+        return self._provide_from_recipe(
+            MergeRequest(LocStack(TypeHintLoc(type=type))),
+        )
