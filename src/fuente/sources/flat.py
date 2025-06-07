@@ -22,6 +22,9 @@ class FlatSource:
         self.dumping_retort = None
         self._type = None
 
+    def _gen_key(self, prefix: str, path: list[str]):
+        return prefix + "_".join(x.upper() for x in path)
+
     def _convert_type(
             self, t: Any, prefix: str,
             path: list[str] | None = None,
@@ -39,10 +42,11 @@ class FlatSource:
             return None, None
 
         for field in shape.fields:
-            field_name = prefix + "_" + field.id.upper()
             field_path = path + [field.id]
-            tmp, tmp_types = self._convert_type(field.type, field_name,
-                                                field_path)
+            field_name = self._gen_key(prefix, field_path)
+            tmp, tmp_types = self._convert_type(
+                field.type, prefix, field_path,
+            )
             if not tmp:
                 names[field_name] = field_path
                 types[field_name] = field.type

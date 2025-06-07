@@ -24,8 +24,8 @@ class Config:
 
 
 cfg = parse(
-    EnvSource(prefix="MYAPP"),
-    DotenvSource(path=".env.example", prefix="MYAPP"),
+    EnvSource(prefix="MYAPP_"),
+    DotenvSource(path=".env.example", prefix="MYAPP_"),
     YamlSource("config.yaml"),
     YamlSource("config2.yaml"),
     recipe=[
