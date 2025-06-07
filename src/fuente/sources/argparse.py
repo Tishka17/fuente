@@ -17,7 +17,7 @@ class ArgParseSource(FlatSource):
     def _patch_parser(self):
         types = get_type_hints(self._type)
         for field, typehint in types.items():
-            self.parser.add_argument("--" + field, dest=field,
+            self.parser.add_argument("--" + field.replace("_", "-"), dest=field,
                                      default=SUPPRESS)
         self._parser_patched = True
 
