@@ -1,3 +1,5 @@
+import sys
+from argparse import ArgumentParser
 from dataclasses import dataclass
 
 from adaptix import P
@@ -8,6 +10,7 @@ from fuente.merger_provider import merge
 from fuente.sources.dotenv import DotenvSource
 from fuente.sources.env import EnvSource
 from fuente.sources.yaml import YamlSource
+from fuente.sources.argparse import ArgParseSource
 
 
 @dataclass
@@ -23,11 +26,13 @@ class Config:
     default_param: str = "default"
 
 
+arg_parser = ArgumentParser()
 cfg = parse(
     EnvSource(prefix="MYAPP_"),
     DotenvSource(path=".env.example", prefix="MYAPP_"),
     YamlSource("config.yaml"),
     YamlSource("config2.yaml"),
+    ArgParseSource(arg_parser, args=sys.argv),
     recipe=[
         merge(P[Config].log_level, UseFirst()),
         merge(P[DbConfig].uri, UseFirst()),

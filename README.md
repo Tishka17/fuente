@@ -7,5 +7,5 @@ pip install .
 
 cd example
 export MYAPP_DATABASE_URI="sqlite:///"
-python example.py
+python example.py --blacklist=x,y
 ```
