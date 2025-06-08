@@ -1,9 +1,9 @@
-from datetime import datetime
 from typing import Any, TypedDict
 
 from adaptix import (
     CannotProvide,
     Chain,
+    P,
     Retort,
     as_is_dumper,
     loader,
@@ -62,7 +62,7 @@ class FlatSource:
 
         self.loading_retort = Retort(
             recipe=[
-                loader(set[str], lambda s: s.split(","), Chain.FIRST),
+                loader(P[set, list, tuple], lambda s: s.split(","), Chain.FIRST),
             ],
             strict_coercion=False,
         )
@@ -70,8 +70,7 @@ class FlatSource:
         self.dumping_retort = Retort(
             recipe=[
                 name_mapping(self._type, map=names),
-                as_is_dumper(set[str]),
-                as_is_dumper(datetime),
+                as_is_dumper(~P[self._type]),
             ],
         )
 

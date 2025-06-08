@@ -31,8 +31,10 @@ class NestedSource:
         self._types[t] = new_t
         return new_t
 
-    def _init_retorts(self, t: Any):
+    def _init_type(self, t: Any):
         self._type  = self._convert_type(t)
+
+    def _init_retorts(self, t: Any):
         self.loading_retort = Retort()
 
     def _load_raw(self):
@@ -40,6 +42,7 @@ class NestedSource:
 
     def load(self, t: Any):
         if self.loading_retort is None:
+            self._init_type(t)
             self._init_retorts(t)
 
         raw = self._load_raw()

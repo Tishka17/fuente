@@ -42,6 +42,16 @@ class Unite(Merger):
         return x | y  # type: ignore[operator]
 
 
+class Max(Merger):
+    def _merge(self, name: str, x: T, y: T) -> T:
+        return max(x, y)  # type: ignore[operator]
+
+
+class Min(Merger):
+    def _merge(self, name: str, x: T, y: T) -> T:
+        return min(x, y)  # type: ignore[operator]
+
+
 class ApplyFunc(Merger):
     def __init__(self, func: Callable):
         self.func = func

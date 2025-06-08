@@ -1,16 +1,17 @@
 import sys
 from argparse import ArgumentParser
 from dataclasses import dataclass
+from datetime import datetime
 
 from adaptix import P
 
 from fuente import parse
-from fuente.merger.simple import Unite, UseFirst
+from fuente.merger.simple import Max, Unite, UseFirst
 from fuente.merger_provider import merge
+from fuente.sources.argparse import ArgParseSource
 from fuente.sources.dotenv import DotenvSource
 from fuente.sources.env import EnvSource
 from fuente.sources.yaml import YamlSource
-from fuente.sources.argparse import ArgParseSource
 
 
 @dataclass
@@ -23,6 +24,7 @@ class Config:
     log_level: str
     database: DbConfig
     blacklist: set[str]
+    min_date: datetime
     default_param: str = "default"
 
 
@@ -37,6 +39,7 @@ cfg = parse(
         merge(P[Config].log_level, UseFirst()),
         merge(P[DbConfig].uri, UseFirst()),
         merge(P[Config].blacklist, Unite()),
+        merge(P[Config].min_date, Max()),
     ],
     type=Config,
 )

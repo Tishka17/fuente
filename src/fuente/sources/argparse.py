@@ -1,4 +1,4 @@
-from argparse import ArgumentParser, SUPPRESS
+from argparse import SUPPRESS, ArgumentParser
 from typing import get_type_hints
 
 from .flat import FlatSource
