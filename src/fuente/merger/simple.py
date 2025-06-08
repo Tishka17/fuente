@@ -1,7 +1,7 @@
 from collections.abc import Callable
 from typing import TypeVar
 
-from .base import MergeForbiddenError, Merger, Special
+from .base import MergeForbiddenError, Merger
 
 T = TypeVar("T")
 
@@ -53,13 +53,8 @@ class Min(Merger):
 
 
 class ApplyFunc(Merger):
-    def __init__(self, func: Callable):
+    def __init__(self, func: Callable[[T, T], T]):
         self.func = func
 
-    def __call__(self, name: str, x: T | Special,
-                 y: T | Special) -> T | Special:
-        if x is Special.NOT_SET:
-            return y
-        if y is Special.NOT_SET:
-            return x
-        return self.func(x, y)
+    def _merge(self, name: str, x: T, y: T) -> T:
+        return self.func(x, y)  # type: ignore[operator]
