@@ -16,6 +16,7 @@ class YamlSource(NestedSource):
     def _init_retorts(self, t: Any):
         self.loading_retort = Retort(recipe=[
             as_is_loader(datetime),
+            as_is_loader(date),
         ])
 
     def _load_raw(self):
