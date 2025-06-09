@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from typing import Any, TypedDict
 
 from adaptix import (
@@ -15,15 +16,30 @@ from adaptix._internal.provider.shape_provider import InputShapeRequest
 
 
 class FlatSource:
-    def __init__(self, prefix: str):
+    def __init__(
+            self,
+            *,
+            prefix: str,
+            sep: str = "_",
+            names: dict[str, Iterable[str]] | None = None,
+    ):
         self.retort = Retort()
         self._prefix = prefix
         self.loading_retort = None
         self.dumping_retort = None
         self._type = None
+        self._sep = sep
+        self._user_mapping = names or {}
 
     def _gen_key(self, prefix: str, path: list[str]):
-        return prefix + "_".join(x.upper() for x in path)
+        for user_key, user_path in self._user_mapping.items():
+            if isinstance(user_path, str):
+                user_path = [user_path]
+            else:
+                user_path = list(user_path)
+            if user_path == path:
+                return user_key
+        return prefix + self._sep.join(x.upper() for x in path)
 
     def _convert_type(
             self, t: Any, prefix: str,
@@ -62,7 +78,8 @@ class FlatSource:
 
         self.loading_retort = Retort(
             recipe=[
-                loader(P[set, list, tuple], lambda s: s.split(","), Chain.FIRST),
+                loader(P[set, list, tuple], lambda s: s.split(","),
+                       Chain.FIRST),
             ],
             strict_coercion=False,
         )
