@@ -11,13 +11,8 @@ from adaptix._internal.morphing.model.loader_provider import (
 from adaptix._internal.morphing.model.request_filtering import AnyModelLSC
 from adaptix._internal.provider.loc_stack_filtering import VarTupleLSC
 
+from fuente.error_mode import ErrorMode
 from fuente.sources.merge_source import MergeSource
-
-
-def _raw(sources, type):
-    for source in sources:
-        yield source.load(type)
-
 
 reload_recipe = [
     bound(list, IterableProvider(dump_as=list)),
@@ -33,9 +28,9 @@ reload_recipe = [
 ]
 
 
-def parse(*sources, recipe, type):
+def parse(*sources, recipe, type, error_mode=ErrorMode.FAIL_ALWAYS):
     source = MergeSource(sources=sources, recipe=recipe)
-    config = source.load(type)
+    config = source.load(type, error_mode)
 
     retort = Retort(recipe=recipe + reload_recipe, strict_coercion=False)
     return retort.load(config, type)

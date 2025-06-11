@@ -6,6 +6,7 @@ from datetime import datetime
 from adaptix import P
 
 from fuente import parse
+from fuente.error_mode import ErrorMode
 from fuente.merger.simple import Max, Unite, UseFirst
 from fuente.merger_provider import merge
 from fuente.sources.argparse import ArgParseSource
@@ -30,7 +31,7 @@ class Config:
 
 arg_parser = ArgumentParser()
 cfg = parse(
-    EnvSource(prefix="MYAPP_"),
+    EnvSource(prefix="MYAPP_", names={"DB_URI": ["database", "uri"]}),
     DotenvSource(path=".env.example", prefix="MYAPP_"),
     YamlSource("config.yaml"),
     YamlSource("config2.yaml"),
@@ -42,5 +43,6 @@ cfg = parse(
         merge(P[Config].min_date, Max()),
     ],
     type=Config,
+    error_mode=ErrorMode.FAIL_ALWAYS,
 )
 print(cfg)

@@ -14,6 +14,9 @@ from adaptix._internal.provider.loc_stack_filtering import LocStack
 from adaptix._internal.provider.location import TypeHintLoc
 from adaptix._internal.provider.shape_provider import InputShapeRequest
 
+from fuente.error_mode import ErrorMode
+from fuente.skip_error_provider import SkipErrorProvider
+
 
 class FlatSource:
     def __init__(
@@ -72,15 +75,17 @@ class FlatSource:
 
         return names, types
 
-    def _init_retorts(self, t: Any, prefix: str):
+    def _init_retorts(self, t: Any, prefix: str, error_mode: ErrorMode):
         names, types = self._convert_type(t, prefix)
-        self._type = TypedDict("Config_td", types, total=False)
 
+        self._type = TypedDict("Config_td", types, total=False)
+        recipe = [
+            loader(P[set, list, tuple], lambda s: s.split(","), Chain.FIRST),
+        ]
+        if error_mode in (ErrorMode.SKIP_FIELD, ErrorMode.FAIL_NOT_PARSED):
+            recipe.append(SkipErrorProvider())
         self.loading_retort = Retort(
-            recipe=[
-                loader(P[set, list, tuple], lambda s: s.split(","),
-                       Chain.FIRST),
-            ],
+            recipe=recipe,
             strict_coercion=False,
         )
 
@@ -94,9 +99,9 @@ class FlatSource:
     def _load_raw(self):
         raise NotImplementedError
 
-    def load(self, t: Any):
+    def load(self, t: Any, error_mode: ErrorMode):
         if self.loading_retort is None:
-            self._init_retorts(t, self._prefix)
+            self._init_retorts(t, self._prefix, error_mode)
 
         raw = self._load_raw()
         return self.dumping_retort.dump(
