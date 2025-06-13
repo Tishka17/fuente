@@ -68,8 +68,8 @@ reload_recipe = [
 def config_loader(
         *config_sources: Source[ConfigT, ConfigDictT],
         config: type[ConfigT],
-        recipe: list[Provider],
-        error_mode: ErrorMode,
+        recipe: list[Provider] | None = None,
+        error_mode: ErrorMode = ErrorMode.FAIL_NOT_PARSED,
 ) -> Loader[ConfigDictT]:
     if error_mode is ErrorMode.FAIL_NOT_PARSED:
         err_recipe = [
@@ -81,6 +81,7 @@ def config_loader(
         ]
     else:
         err_recipe = []
+    recipe = recipe or []
     retort = Retort(
         recipe=recipe + err_recipe + reload_recipe,
         strict_coercion=False,
