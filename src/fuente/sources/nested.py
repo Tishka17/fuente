@@ -7,21 +7,29 @@ from adaptix._internal.provider.location import TypeHintLoc
 from adaptix._internal.provider.shape_provider import InputShapeRequest
 
 from fuente.error_mode import ErrorMode
-from fuente.protocols import ConfigDictT, ConfigSourceLoader, ConfigT, Source
+from fuente.protocols import (
+    ConfigDictT,
+    ConfigSourceLoader,
+    ConfigT,
+    RawConfigSourceLoader,
+    Source,
+)
 from fuente.skip_error_provider import SkipErrorProvider
 
 
 class NestedSourceLoader(ConfigSourceLoader, ABC):
-    def __init__(self, config_type: type, loading_retort: Retort):
+    def __init__(
+            self,
+            config_type: type,
+            loading_retort: Retort,
+            raw_loader: RawConfigSourceLoader,
+    ):
         self.loading_retort = loading_retort
         self.config_type = config_type
-
-    @abstractmethod
-    def _load_raw(self):
-        raise NotImplementedError
+        self.raw_loader = raw_loader
 
     def load(self):
-        raw = self._load_raw()
+        raw = self.raw_loader()
         return self.loading_retort.load(raw, self.config_type)
 
 
@@ -64,9 +72,16 @@ class NestedSource(Source, ABC):
         )
 
     @abstractmethod
+    def _load_raw(self) -> dict[str, Any]:
+        raise NotImplementedError
+
     def _make_loader(
             self,
             loading_retort: Retort,
             config_type: ConfigDictT,
     ) -> ConfigSourceLoader[ConfigDictT]:
-        raise NotImplementedError
+        return NestedSourceLoader(
+            config_type=config_type,
+            loading_retort=loading_retort,
+            raw_loader=self._load_raw,
+        )

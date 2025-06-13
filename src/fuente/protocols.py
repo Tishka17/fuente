@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Protocol, TypeVar
+from typing import Any, Protocol, TypeVar
 
 from fuente.error_mode import ErrorMode
 
@@ -26,4 +26,10 @@ class Source(Protocol[ConfigT, ConfigDictT]):
 class Loader(Protocol[ConfigT]):
     @abstractmethod
     def load(self) -> ConfigT:
+        raise NotImplementedError
+
+
+class RawConfigSourceLoader(Protocol):
+    @abstractmethod
+    def __call__(self) -> dict[str, Any]:
         raise NotImplementedError

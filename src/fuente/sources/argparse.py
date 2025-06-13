@@ -7,22 +7,6 @@ from adaptix import Retort
 from .flat import FlatSource, FlatSourceLoader
 
 
-class ArgParseSourceLoader(FlatSourceLoader):
-    def __init__(
-            self,
-            loading_retort: Retort,
-            dumping_retort: Retort,
-            config_type: type,
-            parser: ArgumentParser,
-    ):
-        super().__init__(loading_retort, dumping_retort, config_type)
-        self._parser = parser
-
-    def _load_raw(self):
-        ns = self._parser.parse_args()
-        return vars(ns)
-
-
 class ArgParseSource(FlatSource):
     def __init__(
             self,
@@ -37,8 +21,8 @@ class ArgParseSource(FlatSource):
     def _gen_key(self, prefix: str, path: list[str]):
         return prefix + "_".join(x.lower() for x in path)
 
-    def _patch_parser(self):
-        types = get_type_hints(self._type)
+    def _patch_parser(self, type_: type):
+        types = get_type_hints(type_)
         for field, typehint in types.items():
             self._parser.add_argument(
                 "--" + field.replace("_", "-"),
@@ -52,10 +36,13 @@ class ArgParseSource(FlatSource):
             dumping_retort: Retort,
             config_type: type,
     ) -> FlatSourceLoader:
-        self._patch_parser()
-        return ArgParseSourceLoader(
+        self._patch_parser(config_type)
+        return super()._make_loader(
             loading_retort=loading_retort,
             dumping_retort=dumping_retort,
             config_type=config_type,
-            parser=self._parser,
         )
+
+    def _load_raw(self):
+        ns = self._parser.parse_args()
+        return vars(ns)

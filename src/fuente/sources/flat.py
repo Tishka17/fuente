@@ -16,27 +16,25 @@ from adaptix._internal.provider.location import TypeHintLoc
 from adaptix._internal.provider.shape_provider import InputShapeRequest
 
 from fuente.error_mode import ErrorMode
-from fuente.protocols import ConfigSourceLoader, Source
+from fuente.protocols import ConfigSourceLoader, RawConfigSourceLoader, Source
 from fuente.skip_error_provider import SkipErrorProvider
 
 
-class FlatSourceLoader(ConfigSourceLoader, ABC):
+class FlatSourceLoader(ConfigSourceLoader):
     def __init__(
             self,
             loading_retort: Retort,
             dumping_retort: Retort,
             config_type: type,
+            raw_loader: RawConfigSourceLoader,
     ) -> None:
         self._loading_retort = loading_retort
         self._dumping_retort = dumping_retort
         self._config_type = config_type
-
-    @abstractmethod
-    def _load_raw(self):
-        raise NotImplementedError
+        self._raw_loader = raw_loader
 
     def load(self):
-        raw = self._load_raw()
+        raw = self._raw_loader()
         return self._dumping_retort.dump(
             self._loading_retort.load(raw, self._config_type),
             self._config_type,
@@ -131,10 +129,18 @@ class FlatSource(Source, ABC):
         )
 
     @abstractmethod
+    def _load_raw(self) -> dict[str, Any]:
+        raise NotImplementedError
+
     def _make_loader(
             self,
             loading_retort: Retort,
             dumping_retort: Retort,
             config_type: type,
     ) -> FlatSourceLoader:
-        raise NotImplementedError
+        return FlatSourceLoader(
+            loading_retort=loading_retort,
+            dumping_retort=dumping_retort,
+            config_type=config_type,
+            raw_loader=self._load_raw,
+        )

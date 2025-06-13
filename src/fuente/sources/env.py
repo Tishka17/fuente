@@ -1,24 +1,9 @@
 import os
+from typing import Any
 
-from adaptix import Retort
-
-from .flat import FlatSource, FlatSourceLoader
-
-
-class EnvSourceLoader(FlatSourceLoader):
-    def _load_raw(self):
-        return os.environ
+from .flat import FlatSource
 
 
 class EnvSource(FlatSource):
-    def _make_loader(
-            self,
-            loading_retort: Retort,
-            dumping_retort: Retort,
-            config_type: type,
-    ) -> FlatSourceLoader:
-        return EnvSourceLoader(
-            loading_retort=loading_retort,
-            dumping_retort=dumping_retort,
-            config_type=config_type,
-        )
+    def _load_raw(self) -> dict[str, Any]:
+        return os.environ

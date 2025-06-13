@@ -5,20 +5,8 @@ import yaml
 from adaptix import Retort, as_is_loader
 
 from ..error_mode import ErrorMode
-from ..protocols import ConfigDictT, ConfigSourceLoader
 from ..skip_error_provider import SkipErrorProvider
-from .nested import NestedSource, NestedSourceLoader
-
-
-class YamlSourceLoader(NestedSourceLoader):
-    def __init__(self, config_type: type, loading_retort: Retort, path: str):
-        super().__init__(config_type, loading_retort)
-        self.path = path
-
-    def _load_raw(self):
-        location = Path(self.path).expanduser()
-        with location.open(encoding="utf-8") as f:
-            return yaml.safe_load(f)
+from .nested import NestedSource
 
 
 class YamlSource(NestedSource):
@@ -35,9 +23,7 @@ class YamlSource(NestedSource):
             recipe.append(SkipErrorProvider())
         return Retort(recipe=recipe)
 
-    def _make_loader(
-            self,
-            loading_retort: Retort,
-            config_type: ConfigDictT,
-    ) -> ConfigSourceLoader[ConfigDictT]:
-        return YamlSourceLoader(config_type, loading_retort, self._path)
+    def _load_raw(self):
+        location = Path(self._path).expanduser()
+        with location.open(encoding="utf-8") as f:
+            return yaml.safe_load(f)
