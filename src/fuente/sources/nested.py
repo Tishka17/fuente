@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from typing import Any, TypedDict
 
 from adaptix import CannotProvide, Retort
@@ -6,50 +7,66 @@ from adaptix._internal.provider.location import TypeHintLoc
 from adaptix._internal.provider.shape_provider import InputShapeRequest
 
 from fuente.error_mode import ErrorMode
+from fuente.protocols import ConfigDictT, ConfigSourceLoader, ConfigT, Source
 from fuente.skip_error_provider import SkipErrorProvider
 
 
-class NestedSource:
-    def __init__(self):
-        self.retort = Retort()
-        self.loading_retort = None
-        self._type = None
-        self._types: dict[Any, Any] = {}
+class NestedSourceLoader(ConfigSourceLoader, ABC):
+    def __init__(self, config_type: type, loading_retort: Retort):
+        self.loading_retort = loading_retort
+        self.config_type = config_type
 
-    def _convert_type(self, t: Any) -> Any:
-        if t in self._types:
-            return self._types[t]
+    @abstractmethod
+    def _load_raw(self):
+        raise NotImplementedError
+
+    def load(self):
+        raw = self._load_raw()
+        return self.loading_retort.load(raw, self.config_type)
+
+
+class NestedSource(Source, ABC):
+    def __init__(self):
+        self._retort = Retort()
+
+    def _make_loading_retort(self, config_type: type, error_mode: ErrorMode):
+        recipe = []
+        if error_mode in (ErrorMode.SKIP_FIELD, ErrorMode.FAIL_NOT_PARSED):
+            recipe.append(SkipErrorProvider())
+        return Retort(recipe=recipe)
+
+    def _convert_type(self, types: dict[str, Any], t: Any) -> Any:
+        if t in types:
+            return types[t]
 
         try:
-            shape = self.retort._provide_from_recipe(
+            shape = self._retort._provide_from_recipe(
                 InputShapeRequest(LocStack(TypeHintLoc(type=t))),
             )
         except CannotProvide:
             return t
 
-        types = {}
+        field_types = {}
         for field in shape.fields:
-            types[field.id] = self._convert_type(field.type)
-        new_t = TypedDict("Config_td", types, total=False)
-        self._types[t] = new_t
+            field_types[field.id] = self._convert_type(types, field.type)
+        new_t = TypedDict("Config_td", field_types, total=False)
+        types[t] = new_t
         return new_t
 
-    def _init_type(self, t: Any):
-        self._type  = self._convert_type(t)
+    def make_loader(
+            self,
+            config_type: ConfigT,
+            error_mode: ErrorMode,
+    ) -> ConfigSourceLoader[ConfigDictT]:
+        return self._make_loader(
+            loading_retort=self._make_loading_retort(config_type, error_mode),
+            config_type=self._convert_type({}, config_type),
+        )
 
-    def _init_retorts(self, t: Any, error_mode: ErrorMode):
-        recipe = []
-        if error_mode in (ErrorMode.SKIP_FIELD, ErrorMode.FAIL_NOT_PARSED):
-            recipe.append(SkipErrorProvider())
-        self.loading_retort = Retort(recipe=recipe)
-
-    def _load_raw(self):
+    @abstractmethod
+    def _make_loader(
+            self,
+            loading_retort: Retort,
+            config_type: ConfigDictT,
+    ) -> ConfigSourceLoader[ConfigDictT]:
         raise NotImplementedError
-
-    def load(self, t: Any, error_mode: ErrorMode):
-        if self.loading_retort is None:
-            self._init_type(t)
-            self._init_retorts(t, error_mode)
-
-        raw = self._load_raw()
-        return self.loading_retort.load(raw, self._type)

@@ -1,11 +1,10 @@
-import sys
 from argparse import ArgumentParser
 from dataclasses import dataclass
 from datetime import datetime
 
 from adaptix import P
 
-from fuente import parse
+from fuente import config_loader
 from fuente.error_mode import ErrorMode
 from fuente.merger.simple import Max, Unite, UseFirst
 from fuente.merger_provider import merge
@@ -30,19 +29,20 @@ class Config:
 
 
 arg_parser = ArgumentParser()
-cfg = parse(
+loader = config_loader(
     EnvSource(prefix="MYAPP_", names={"DB_URI": ["database", "uri"]}),
     DotenvSource(path=".env.example", prefix="MYAPP_"),
     YamlSource("config.yaml"),
     YamlSource("config2.yaml"),
-    ArgParseSource(arg_parser, args=sys.argv),
+    ArgParseSource(parser=arg_parser),
     recipe=[
         merge(P[Config].log_level, UseFirst()),
         merge(P[DbConfig].uri, UseFirst()),
         merge(P[Config].blacklist, Unite()),
         merge(P[Config].min_date, Max()),
     ],
-    type=Config,
+    config=Config,
     error_mode=ErrorMode.FAIL_ALWAYS,
 )
+cfg = loader.load()
 print(cfg)

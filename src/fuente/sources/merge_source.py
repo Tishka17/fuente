@@ -1,26 +1,56 @@
-from typing import Any
+from typing import TypeVar
 
 from adaptix._internal.morphing.load_error import LoadError
 
 from ..error_mode import ErrorMode
 from ..merger_provider import MergeRetort
+from ..protocols import ConfigSourceLoader
+
+ConfigT = TypeVar("ConfigT")
+ConfigDictT = TypeVar("ConfigDictT")
 
 
-class MergeSource:
-    def __init__(self, sources, recipe) -> None:
+class MergeSourceLoader(ConfigSourceLoader):
+    def __init__(
+            self,
+            sources,
+            retort,
+            error_mode,
+            config_type,
+    ) -> None:
         self.sources = sources
-        self.retort = MergeRetort(recipe=recipe)
+        self.retort = retort
+        self.error_mode = error_mode
+        self.config_type = config_type
 
-    def load(self, t: Any, error_mode):
-        merger = self.retort.merger(t)
+    def load(self):
+        merger = self.retort.merger(self.config_type)
         sources = iter(self.sources)
-        first_cfg = next(sources).load(t, error_mode)
+        first_cfg = next(sources).load()
         for n, src in enumerate(sources, 1):
             try:
-                next_cfg = src.load(t, error_mode)
+                next_cfg = src.load()
             except LoadError:
-                if error_mode is ErrorMode.SKIP_SOURCE:
+                if self.error_mode is ErrorMode.SKIP_SOURCE:
                     continue
                 raise
             first_cfg = merger(n, first_cfg, next_cfg)
         return first_cfg
+
+
+class MergeSource:
+    def __init__(self, recipe, sources):
+        self._recipe = recipe
+        self._sources = sources
+
+    def make_loader(
+            self,
+            config_type: ConfigT,
+            error_mode: ErrorMode,
+    ) -> ConfigSourceLoader[ConfigDictT]:
+        return MergeSourceLoader(
+            retort=MergeRetort(recipe=self._recipe),
+            sources=self._sources,
+            config_type=config_type,
+            error_mode=error_mode,
+        )

@@ -1,5 +1,5 @@
 __all__ = [
-    "parse",
+    "config_loader",
 ]
 
-from .alltogether import parse
+from .make_loader import config_loader

@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from typing import Any, TypedDict
 
@@ -15,10 +16,34 @@ from adaptix._internal.provider.location import TypeHintLoc
 from adaptix._internal.provider.shape_provider import InputShapeRequest
 
 from fuente.error_mode import ErrorMode
+from fuente.protocols import ConfigSourceLoader, Source
 from fuente.skip_error_provider import SkipErrorProvider
 
 
-class FlatSource:
+class FlatSourceLoader(ConfigSourceLoader, ABC):
+    def __init__(
+            self,
+            loading_retort: Retort,
+            dumping_retort: Retort,
+            config_type: type,
+    ) -> None:
+        self._loading_retort = loading_retort
+        self._dumping_retort = dumping_retort
+        self._config_type = config_type
+
+    @abstractmethod
+    def _load_raw(self):
+        raise NotImplementedError
+
+    def load(self):
+        raw = self._load_raw()
+        return self._dumping_retort.dump(
+            self._loading_retort.load(raw, self._config_type),
+            self._config_type,
+        )
+
+
+class FlatSource(Source, ABC):
     def __init__(
             self,
             *,
@@ -75,15 +100,19 @@ class FlatSource:
 
         return names, types
 
-    def _init_retorts(self, t: Any, prefix: str, error_mode: ErrorMode):
-        names, types = self._convert_type(t, prefix)
-
+    def make_loader(
+            self,
+            config_type,
+            error_mode: ErrorMode,
+    ) -> FlatSourceLoader:
+        names, types = self._convert_type(config_type, self._prefix)
         self._type = TypedDict("Config_td", types, total=False)
         recipe = [
             loader(P[set, list, tuple], lambda s: s.split(","), Chain.FIRST),
         ]
         if error_mode in (ErrorMode.SKIP_FIELD, ErrorMode.FAIL_NOT_PARSED):
             recipe.append(SkipErrorProvider())
+
         self.loading_retort = Retort(
             recipe=recipe,
             strict_coercion=False,
@@ -95,16 +124,17 @@ class FlatSource:
                 as_is_dumper(~P[self._type]),
             ],
         )
-
-    def _load_raw(self):
-        raise NotImplementedError
-
-    def load(self, t: Any, error_mode: ErrorMode):
-        if self.loading_retort is None:
-            self._init_retorts(t, self._prefix, error_mode)
-
-        raw = self._load_raw()
-        return self.dumping_retort.dump(
-            self.loading_retort.load(raw, self._type),
-            self._type,
+        return self._make_loader(
+            loading_retort=self.loading_retort,
+            dumping_retort=self.dumping_retort,
+            config_type=self._type,
         )
+
+    @abstractmethod
+    def _make_loader(
+            self,
+            loading_retort: Retort,
+            dumping_retort: Retort,
+            config_type: type,
+    ) -> FlatSourceLoader:
+        raise NotImplementedError
