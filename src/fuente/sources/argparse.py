@@ -23,7 +23,7 @@ class ArgParseSource(FlatSource):
 
     def _patch_parser(self, type_: type):
         types = get_type_hints(type_)
-        for field, typehint in types.items():
+        for field in types:
             self._parser.add_argument(
                 "--" + field.replace("_", "-"),
                 dest=field,

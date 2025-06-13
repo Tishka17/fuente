@@ -4,8 +4,8 @@ from pathlib import Path
 import yaml
 from adaptix import Retort, as_is_loader
 
-from ..error_mode import ErrorMode
-from ..skip_error_provider import SkipErrorProvider
+from fuente.error_mode import ErrorMode
+from fuente.skip_error_provider import SkipErrorProvider
 from .nested import NestedSource
 
 

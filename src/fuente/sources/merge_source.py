@@ -2,9 +2,9 @@ from typing import TypeVar
 
 from adaptix._internal.morphing.load_error import LoadError
 
-from ..error_mode import ErrorMode
-from ..merger_provider import MergeRetort
-from ..protocols import ConfigSourceLoader
+from fuente.error_mode import ErrorMode
+from fuente.merger_provider import MergeRetort
+from fuente.protocols import ConfigSourceLoader
 
 ConfigT = TypeVar("ConfigT")
 ConfigDictT = TypeVar("ConfigDictT")

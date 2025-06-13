@@ -84,7 +84,7 @@ class FlatSource(Source, ABC):
             return None, None
 
         for field in shape.fields:
-            field_path = path + [field.id]
+            field_path = [*path, field.id]
             field_name = self._gen_key(prefix, field_path)
             tmp, tmp_types = self._convert_type(
                 field.type, prefix, field_path,

@@ -29,7 +29,7 @@ class MergeProvider(LocatedRequestMethodsProvider):
                        request: MergeRequest) -> Merger:
         shape = self._fetch_shape(mediator, request)
         if not shape:
-            raise CannotProvide()
+            raise CannotProvide
         field_mergers = self._fetch_field_mergers(mediator, request, shape)
 
         return mediator.cached_call(
@@ -83,10 +83,7 @@ def merge(predicat, merger):
 
 class MergeRetort(Retort):
     def _get_recipe_tail(self) -> VarTuple[Provider]:
-        return super()._get_recipe_tail() + (
-            MergeProvider(),
-            FixedMergeProvider(UseLast()),
-        )
+        return (*super()._get_recipe_tail(), MergeProvider(), FixedMergeProvider(UseLast()))
 
     def merger(self, type):
         return self._provide_from_recipe(
