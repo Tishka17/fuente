@@ -60,9 +60,9 @@ class FlatSource(Source, ABC):
     def _gen_key(self, prefix: str, path: list[str]):
         for user_key, user_path in self._user_mapping.items():
             if isinstance(user_path, str):
-                user_path = [user_path]
+                user_path = [user_path]  # noqa: PLW2901
             else:
-                user_path = list(user_path)
+                user_path = list(user_path)  # noqa: PLW2901
             if user_path == path:
                 return user_key
         return prefix + self._sep.join(x.upper() for x in path)
@@ -77,7 +77,7 @@ class FlatSource(Source, ABC):
             path = []
 
         try:
-            shape = self.retort._provide_from_recipe(
+            shape = self.retort._provide_from_recipe(  # noqa: SLF001
                 InputShapeRequest(LocStack(TypeHintLoc(type=t))),
             )
         except CannotProvide:

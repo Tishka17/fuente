@@ -48,7 +48,7 @@ class NestedSource(Source, ABC):
             return types[t]
 
         try:
-            shape = self._retort._provide_from_recipe(
+            shape = self._retort._provide_from_recipe(  # noqa: SLF001
                 InputShapeRequest(LocStack(TypeHintLoc(type=t))),
             )
         except CannotProvide:
