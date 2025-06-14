@@ -37,7 +37,11 @@ class NestedSource(Source, ABC):
     def __init__(self):
         self._retort = Retort()
 
-    def _make_loading_retort(self, config_type: type, error_mode: ErrorMode):
+    def _make_loading_retort(
+            self,
+            config_type: type,
+            error_mode: ErrorMode,
+    ):
         recipe = []
         if error_mode in (ErrorMode.SKIP_FIELD, ErrorMode.FAIL_NOT_PARSED):
             recipe.append(SkipErrorProvider())
@@ -48,7 +52,7 @@ class NestedSource(Source, ABC):
             return types[t]
 
         try:
-            shape = self._retort._provide_from_recipe(
+            shape = self._retort._provide_from_recipe(  # noqa: SLF001
                 InputShapeRequest(LocStack(TypeHintLoc(type=t))),
             )
         except CannotProvide:

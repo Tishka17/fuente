@@ -25,8 +25,11 @@ class MergeRequest(LocatedRequest):
 
 class MergeProvider(LocatedRequestMethodsProvider):
     @method_handler
-    def provide_loader(self, mediator: Mediator[Merger],
-                       request: MergeRequest) -> Merger:
+    def provide_loader(
+        self,
+        mediator: Mediator[Merger],
+        request: MergeRequest,
+    ) -> Merger:
         shape = self._fetch_shape(mediator, request)
         if not shape:
             raise CannotProvide
@@ -37,26 +40,32 @@ class MergeProvider(LocatedRequestMethodsProvider):
             field_mergers=field_mergers,
         )
 
-    def _fetch_shape(self, mediator: Mediator,
-                     request: LocatedRequest) -> InputShape | None:
+    def _fetch_shape(
+        self,
+        mediator: Mediator,
+        request: LocatedRequest,
+    ) -> InputShape | None:
         try:
-            return provide_generic_resolved_shape(mediator, InputShapeRequest(
-                loc_stack=request.loc_stack))
+            return provide_generic_resolved_shape(
+                mediator,
+                InputShapeRequest(loc_stack=request.loc_stack),
+            )
         except CannotProvide:
             return None
 
     def _fetch_field_mergers(
-            self,
-            mediator: Mediator,
-            request: MergeRequest,
-            shape: InputShape,
+        self,
+        mediator: Mediator,
+        request: MergeRequest,
+        shape: InputShape,
     ) -> tuple[tuple[str, Merger], ...]:
         return tuple(
             (
                 field.id,
                 mediator.provide(
                     request.append_loc(input_field_to_loc(field)),
-                ) or UseLast(),
+                )
+                or UseLast(),
             )
             for field in shape.fields
         )
@@ -72,8 +81,11 @@ class FixedMergeProvider(LocatedRequestMethodsProvider):
         self.merger = merger
 
     @method_handler
-    def provide_loader(self, mediator: Mediator[Merger],
-                       request: MergeRequest) -> Merger:
+    def provide_loader(
+        self,
+        mediator: Mediator[Merger],
+        request: MergeRequest,
+    ) -> Merger:
         return self.merger
 
 
@@ -83,9 +95,13 @@ def merge(predicat, merger):
 
 class MergeRetort(Retort):
     def _get_recipe_tail(self) -> VarTuple[Provider]:
-        return (*super()._get_recipe_tail(), MergeProvider(), FixedMergeProvider(UseLast()))
+        return (
+            *super()._get_recipe_tail(),
+            MergeProvider(),
+            FixedMergeProvider(UseLast()),
+        )
 
-    def merger(self, type):
+    def merger(self, type):  # noqa: A002
         return self._provide_from_recipe(
             MergeRequest(LocStack(TypeHintLoc(type=type))),
         )

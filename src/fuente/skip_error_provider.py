@@ -25,7 +25,8 @@ ResponseT = TypeVar("ResponseT")
 class SkipErrorProvider(Provider):
     def _wrap_handler(
             self,
-            mediator: Mediator[ResponseT], request: RequestT,
+            mediator: Mediator[ResponseT],
+            request: RequestT,
     ) -> RequestHandler[ResponseT, RequestT]:
         next_processor = mediator.provide_from_next()
 
@@ -38,7 +39,8 @@ class SkipErrorProvider(Provider):
         return chain_processor
 
     def get_request_handlers(self) -> Sequence[
-        tuple[type[Request], RequestChecker, RequestHandler]]:
+        tuple[type[Request], RequestChecker, RequestHandler]
+    ]:
         return [
             (LoaderRequest, AlwaysTrueRequestChecker(), self._wrap_handler),
         ]

@@ -3,7 +3,6 @@ target-version = "py310"
 src = ["src"]
 
 include = ["src/**.py", "tests/**.py"]
-exclude = ["src/dishka/_adaptix/**"]
 
 lint.select = [
     "ALL"
@@ -21,6 +20,8 @@ lint.ignore = [
     "PLR0913",
     "SIM103",
     "ISC003",
+    "TRY003",
+    "B008",
 
     # identitcal by code != identical by meaning
     "SIM114",
