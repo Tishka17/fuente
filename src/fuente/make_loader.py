@@ -54,10 +54,14 @@ def check_not_parsed_fields(data):
 reload_recipe = [
     bound(list, IterableProvider(dump_as=list)),
     bound(VarTupleLSC(), IterableProvider(dump_as=tuple)),
-    bound(set,
-          IterableProvider(dump_as=list, json_schema_unique_items=True)),
-    bound(frozenset,
-          IterableProvider(dump_as=tuple, json_schema_unique_items=True)),
+    bound(
+        set,
+        IterableProvider(dump_as=list, json_schema_unique_items=True),
+    ),
+    bound(
+        frozenset,
+        IterableProvider(dump_as=tuple, json_schema_unique_items=True),
+    ),
     bound(collections.deque, IterableProvider(dump_as=list)),
     ConstantLengthTupleProvider(),
     ModelLoaderProvider(),

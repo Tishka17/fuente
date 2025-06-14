@@ -5,11 +5,18 @@ from .simple import Forbid
 
 
 class DictMerge(Merger):
-    def __init__(self, value_merger: Merger = Forbid()):
+    def __init__(
+            self,
+            value_merger: Merger = Forbid(),
+    ):
         self.value_merger = value_merger
 
-    def _merge(self, name: str, x: dict,
-               y: dict) -> dict:  # type: ignore[override]
+    def _merge(
+            self,
+            name: str,
+            x: dict,
+            y: dict,
+    ) -> dict:  # type: ignore[override]
         result = copy(x)
         for key, value in y.items():
             if key in result:
@@ -20,13 +27,20 @@ class DictMerge(Merger):
 
 
 class TypedDictMerge(Merger):
-    def __init__(self, value_mergers: dict[str, Merger],
-                 default: Merger = Forbid()):
+    def __init__(
+            self,
+            value_mergers: dict[str, Merger],
+            default: Merger = Forbid(),
+    ):
         self.value_mergers = value_mergers
         self.default = default
 
-    def _merge(self, name: str, x: dict,
-               y: dict) -> dict:  # type: ignore[override]
+    def _merge(
+            self,
+            name: str,
+            x: dict,
+            y: dict,
+    ) -> dict:  # type: ignore[override]
         result = copy(x)
         for key, value in y.items():
             if key in result:

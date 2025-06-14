@@ -68,7 +68,9 @@ class FlatSource(Source, ABC):
         return prefix + self._sep.join(x.upper() for x in path)
 
     def _convert_type(
-            self, t: Any, prefix: str,
+            self,
+            t: Any,
+            prefix: str,
             path: list[str] | None = None,
     ) -> tuple[dict[str, list[str]] | None, dict[str, Any] | None]:
         names = {}
