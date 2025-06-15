@@ -1,33 +1,35 @@
+from collections.abc import Sequence
 from typing import TypeVar
 
+from adaptix import Provider
 from adaptix._internal.morphing.load_error import LoadError
 
 from fuente.error_mode import ErrorMode
 from fuente.merger_provider import MergeRetort
-from fuente.protocols import ConfigSourceLoader
+from fuente.protocols import ConfigSourceLoader, Source
 
 ConfigT = TypeVar("ConfigT")
 ConfigDictT = TypeVar("ConfigDictT")
 
 
-class MergeSourceLoader(ConfigSourceLoader):
+class MergeSourceLoader(ConfigSourceLoader[ConfigDictT]):
     def __init__(
             self,
-            sources,
-            retort,
-            error_mode,
-            config_type,
+            source_loaders: list[ConfigSourceLoader[ConfigDictT]],
+            retort: MergeRetort,
+            error_mode: ErrorMode,
+            config_type: type,
     ) -> None:
-        self.sources = sources
+        self.source_loaders = source_loaders
         self.retort = retort
         self.error_mode = error_mode
         self.config_type = config_type
 
     def load(self):
         merger = self.retort.merger(self.config_type)
-        sources = iter(self.sources)
-        first_cfg = next(sources).load()
-        for n, src in enumerate(sources, 1):
+        loaders = iter(self.source_loaders)
+        first_cfg = next(loaders).load()
+        for n, src in enumerate(loaders, 1):
             try:
                 next_cfg = src.load()
             except LoadError:
@@ -38,8 +40,12 @@ class MergeSourceLoader(ConfigSourceLoader):
         return first_cfg
 
 
-class MergeSource:
-    def __init__(self, recipe, sources):
+class MergeSource(Source[ConfigT, ConfigDictT]):
+    def __init__(
+            self,
+            recipe: list[Provider],
+            sources: Sequence[Source[ConfigT, ConfigDictT]],
+    ) -> None:
         self._recipe = recipe
         self._sources = sources
 
@@ -50,7 +56,10 @@ class MergeSource:
     ) -> ConfigSourceLoader[ConfigDictT]:
         return MergeSourceLoader(
             retort=MergeRetort(recipe=self._recipe),
-            sources=self._sources,
+            source_loaders=[
+                s.make_loader(config_type=config_type, error_mode=error_mode)
+                for s in self._sources
+            ],
             config_type=config_type,
             error_mode=error_mode,
         )

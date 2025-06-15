@@ -91,10 +91,7 @@ def config_loader(
         strict_coercion=False,
     )
 
-    source = MergeSource(
-        sources=[s.make_loader(config, error_mode) for s in config_sources],
-        recipe=recipe,
-    )
+    source = MergeSource(sources=config_sources, recipe=recipe)
     return LoaderImpl(
         config_type=config,
         source=source.make_loader(config_type=config, error_mode=error_mode),
