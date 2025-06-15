@@ -74,7 +74,7 @@ def config_loader(
         config: type[ConfigT],
         recipe: list[Provider] | None = None,
         error_mode: ErrorMode = ErrorMode.FAIL_NOT_PARSED,
-) -> Loader[ConfigDictT]:
+) -> Loader[ConfigT]:
     if error_mode is ErrorMode.FAIL_NOT_PARSED:
         err_recipe = [
             loader(AnyModelLSC(), check_not_parsed_fields, Chain.FIRST),
@@ -97,3 +97,17 @@ def config_loader(
         source=source.make_loader(config_type=config, error_mode=error_mode),
         retort=retort,
     )
+
+
+def load(
+        *config_sources: Source[ConfigT, ConfigDictT],
+        config: type[ConfigT],
+        recipe: list[Provider] | None = None,
+        error_mode: ErrorMode = ErrorMode.FAIL_NOT_PARSED,
+) -> ConfigT:
+    return config_loader(
+        *config_sources,
+        config=config,
+        recipe=recipe,
+        error_mode=error_mode,
+    ).load()

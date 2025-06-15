@@ -27,18 +27,12 @@ class Config:
 from fuente.sources.env import EnvSource
 ```
 
-3. Create config loader providing source and config type.
+3. Load config providing source and config type.
 
 ```python
-from fuente.make_loader import config_loader
+import fuente
 
-loader = config_loader(EnvSource(prefix="MYAPP"), config=Config)
-```
-
-4. Load data
-
-```python
-config = loader.load()
+loader = fuente.load(EnvSource(prefix="MYAPP"), config=Config)
 ```
 
 ### Running example
@@ -53,7 +47,18 @@ python example.py --blacklist=x,y
 
 ### Customization
 
-1. You can provide custom merging rules based on adaptix predicates. 
+
+1. You can create a separate config loader to delay data loading or do it multiple times.
+
+```python
+loader = config_loader(
+    EnvSource(prefix="MYAPP_"),
+    config=Config,
+)
+config = loader.load()
+```
+
+2. You can provide custom merging rules based on adaptix predicates. 
 They make sense once you have multiple sources.
 ```python
 loader = config_loader(
@@ -67,6 +72,6 @@ loader = config_loader(
 )
 ```
 
-2. Set error handling mode. You can skip unparsed fields, the whole source if it has errors of fail. Use `error_mode` argument
+3. Set error handling mode. You can skip unparsed fields, the whole source if it has errors of fail. Use `error_mode` argument
 
-3. Configure each source. Depenging on type, you can pass additional arguments to each config source. It can be prefix/separator or additional parsing rules
+4. Configure each source. Depenging on type, you can pass additional arguments to each config source. It can be prefix/separator or additional parsing rules
