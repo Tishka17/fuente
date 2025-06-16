@@ -2,10 +2,8 @@ from datetime import date, datetime
 from pathlib import Path
 
 import yaml
-from adaptix import Retort, as_is_loader
+from adaptix import Provider, as_is_loader
 
-from fuente.error_mode import ErrorMode
-from fuente.skip_error_provider import SkipErrorProvider
 from .nested import NestedSource
 
 
@@ -14,14 +12,11 @@ class YamlSource(NestedSource):
         super().__init__()
         self._path = path
 
-    def _make_loading_retort(self, config_type: type, error_mode: ErrorMode):
-        recipe = [
+    def _loading_recipe(self) -> list[Provider]:
+        return [
             as_is_loader(datetime),
             as_is_loader(date),
         ]
-        if error_mode in (ErrorMode.SKIP_FIELD, ErrorMode.FAIL_NOT_PARSED):
-            recipe.append(SkipErrorProvider())
-        return Retort(recipe=recipe)
 
     def _load_raw(self):
         location = Path(self._path).expanduser()
