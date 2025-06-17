@@ -39,3 +39,6 @@ yaml = [
 dotenv = [
     "python-dotenv>=1.0.1",
 ]
+toml = [
+    "tomli>=2.2.1 ; python_version<'3.11'",
+]
