@@ -11,6 +11,7 @@ if sys.version_info >= (3, 11):
 else:
     import tomli as tomllib
 
+
 class TomlSource(NestedSource):
     def __init__(self, path: str, recipe: list[Provider] | None = None):
         super().__init__()
@@ -23,6 +24,7 @@ class TomlSource(NestedSource):
             as_is_loader(datetime),
             as_is_loader(date),
             as_is_loader(time),
+            as_is_loader(bool),
         ]
 
     def _load_raw(self):
