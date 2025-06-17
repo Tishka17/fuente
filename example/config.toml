@@ -1,0 +1,3 @@
+log_level = "INFO"
+min_date = 2020-10-31T23:55:00Z
+blacklist = [ "e", "f", "a" ]
