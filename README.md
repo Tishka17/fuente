@@ -18,18 +18,18 @@ from dataclasses import dataclass
 
 @dataclass
 class Config:
-    value: str
+    token: str
 ```
 
-2. Load config providing source and config type.
+2. Load config from environment variables. Here, it will look for `TOKEN`
 
 ```python
 import fuente
 
-loader = fuente.load_env(Config, prefix="MYAPP")
+loader = fuente.load_env(Config)
 ```
 
-3. Customize config sources
+3. Customize config sources. 
 
 ```python
 from fuente.sources.env import EnvSource
