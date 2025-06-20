@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 from dataclasses import dataclass
 from datetime import datetime
+from pprint import pprint
 
 from adaptix import P
 
@@ -11,6 +12,7 @@ from fuente.merger_provider import merge
 from fuente.sources.argparse import ArgParseSource
 from fuente.sources.dotenv import DotenvSource
 from fuente.sources.env import EnvSource
+from fuente.sources.toml import TomlSource
 from fuente.sources.yaml import YamlSource
 
 
@@ -34,6 +36,7 @@ loader = config_loader(
     DotenvSource(path=".env.example", prefix="MYAPP_"),
     YamlSource("config.yaml"),
     YamlSource("config2.yaml"),
+    TomlSource("config.toml"),
     ArgParseSource(parser=arg_parser),
     recipe=[
         merge(P[Config].log_level, UseFirst()),
@@ -45,4 +48,4 @@ loader = config_loader(
     error_mode=ErrorMode.FAIL_ALWAYS,
 )
 cfg = loader.load()
-print(cfg)
+pprint(cfg)

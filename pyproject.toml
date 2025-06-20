@@ -29,13 +29,16 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    'adaptix',
+    "adaptix>=3.0.0b11",
 ]
 
 [project.optional-dependencies]
 yaml = [
-    "pyyaml",
+    "pyyaml>=6.0.2 ",
 ]
 dotenv = [
-    "python-dotenv",
+    "python-dotenv>=1.0.1",
+]
+toml = [
+    "tomli>=2.2.1 ; python_version<'3.11'",
 ]
