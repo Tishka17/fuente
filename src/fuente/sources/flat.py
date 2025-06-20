@@ -45,7 +45,7 @@ class FlatSource(Source, ABC):
     def __init__(
             self,
             *,
-            prefix: str,
+            prefix: str = "",
             sep: str = "_",
             names: dict[str, Iterable[str]] | None = None,
     ):

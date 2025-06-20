@@ -15,6 +15,7 @@ from adaptix._internal.provider.loc_stack_filtering import VarTupleLSC
 from fuente.error_mode import ErrorMode
 from fuente.merger.base import Special
 from fuente.protocols import ConfigSourceLoader, Loader, Source
+from fuente.sources.env import EnvSource
 from fuente.sources.merge_source import MergeSource
 
 ConfigT = TypeVar("ConfigT")
@@ -111,3 +112,10 @@ def load(
         recipe=recipe,
         error_mode=error_mode,
     ).load()
+
+
+def load_env(config: type[ConfigT], prefix: str = "") -> ConfigT:
+    return load(
+        EnvSource(prefix=prefix),
+        config=config,
+    )

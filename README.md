@@ -1,10 +1,10 @@
-### Fuente
+## Fuente
 
 Config loading library with multiple sources
 
 Features:
 
-* Well-known sources
+* Well-known and custom sources
 * Custom values merging rules
 * Loading into clean dataclasses
 
@@ -21,19 +21,26 @@ class Config:
     value: str
 ```
 
-2. Import required config source
-
-```python
-from fuente.sources.env import EnvSource
-```
-
-3. Load config providing source and config type.
+2. Load config providing source and config type.
 
 ```python
 import fuente
 
-loader = fuente.load(EnvSource(prefix="MYAPP"), config=Config)
+loader = fuente.load_env(Config, prefix="MYAPP")
 ```
+
+3. Customize config sources
+
+```python
+from fuente.sources.env import EnvSource
+
+
+loader = fuente.load_env(
+    EnvSource(prefix="MYAPP", sep="__"), 
+    config=Config,
+)
+```
+
 
 ### Running example
 
