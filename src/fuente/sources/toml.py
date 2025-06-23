@@ -2,8 +2,9 @@ import sys
 from datetime import date, datetime, time
 from pathlib import Path
 
-from adaptix import Provider, as_is_loader
+from adaptix import Provider
 
+from fuente.check_type_provider import check_type_loader
 from .nested import NestedSource
 
 if sys.version_info >= (3, 11):
@@ -21,10 +22,10 @@ class TomlSource(NestedSource):
     def _loading_recipe(self) -> list[Provider]:
         return [
             *self._recipe,
-            as_is_loader(datetime),
-            as_is_loader(date),
-            as_is_loader(time),
-            as_is_loader(bool),
+            check_type_loader(datetime),
+            check_type_loader(date),
+            check_type_loader(time),
+            check_type_loader(bool),
         ]
 
     def _load_raw(self):
