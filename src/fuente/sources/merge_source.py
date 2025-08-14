@@ -4,9 +4,10 @@ from typing import TypeVar
 from adaptix import Provider
 from adaptix._internal.morphing.load_error import LoadError
 
+from fuente.entities import SrcMetadata
 from fuente.error_mode import ErrorMode
 from fuente.merger_provider import MergeRetort
-from fuente.protocols import ConfigSourceLoader, Source
+from fuente.protocols import ConfigSourceLoader, ConfigWrapper, Source
 
 ConfigT = TypeVar("ConfigT")
 ConfigDictT = TypeVar("ConfigDictT")
@@ -36,8 +37,8 @@ class MergeSourceLoader(ConfigSourceLoader[ConfigDictT]):
                 if self.error_mode is ErrorMode.SKIP_SOURCE:
                     continue
                 raise
-            first_cfg = merger(n, first_cfg, next_cfg)
-        return first_cfg
+            first_cfg = merger(n, first_cfg.config, next_cfg.config)
+        return ConfigWrapper(first_cfg, SrcMetadata())  # TODO
 
 
 class MergeSource(Source[ConfigT, ConfigDictT]):
