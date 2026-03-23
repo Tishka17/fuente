@@ -1,3 +1,8 @@
+**Note:** 
+This repo is an experiemnt. For production use [dature](https://github.com/reagento/dature/tree/main)
+
+
+
 ## Fuente
 
 Config loading library with multiple sources
