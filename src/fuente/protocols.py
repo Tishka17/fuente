@@ -1,15 +1,23 @@
 from abc import abstractmethod
-from typing import Any, Protocol, TypeVar
+from dataclasses import dataclass
+from typing import Any, Generic, Protocol, TypeVar
 
+from fuente.entities import SrcMetadata
 from fuente.error_mode import ErrorMode
 
 ConfigT = TypeVar("ConfigT")
 ConfigDictT = TypeVar("ConfigDictT")
 
 
+@dataclass
+class ConfigWrapper(Generic[ConfigDictT]):
+    config: ConfigDictT
+    metadata: SrcMetadata
+
+
 class ConfigSourceLoader(Protocol[ConfigDictT]):
     @abstractmethod
-    def load(self) -> ConfigDictT:
+    def load(self) -> ConfigWrapper[ConfigDictT]:
         raise NotImplementedError
 
 

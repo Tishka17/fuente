@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
-from typing import Any, TypedDict
+from typing import Any, Protocol, TypedDict
 
 from adaptix import (
     CannotProvide,
@@ -16,9 +16,19 @@ from adaptix._internal.provider.location import TypeHintLoc
 from adaptix._internal.provider.shape_provider import InputShapeRequest
 
 from fuente.error_mode import ErrorMode
-from fuente.protocols import ConfigSourceLoader, RawConfigSourceLoader, Source
+from fuente.protocols import (
+    ConfigSourceLoader,
+    ConfigWrapper,
+    RawConfigSourceLoader,
+    Source,
+)
 from fuente.skip_error_provider import SkipErrorProvider
 
+
+class RawMetadataLoader(Protocol):
+    @abstractmethod
+    def __call__(self) -> dict[str, Any]:
+        raise NotImplementedError
 
 class FlatSourceLoader(ConfigSourceLoader):
     def __init__(
@@ -27,17 +37,27 @@ class FlatSourceLoader(ConfigSourceLoader):
             dumping_retort: Retort,
             config_type: type,
             raw_loader: RawConfigSourceLoader,
+            raw_metadata_loader: RawMetadataLoader,
     ) -> None:
         self._loading_retort = loading_retort
         self._dumping_retort = dumping_retort
         self._config_type = config_type
         self._raw_loader = raw_loader
+        self._raw_metadata_loader = raw_metadata_loader
 
     def load(self):
         raw = self._raw_loader()
-        return self._dumping_retort.dump(
+        values = self._dumping_retort.dump(
             self._loading_retort.load(raw, self._config_type),
             self._config_type,
+        )
+        metadata = self._dumping_retort.dump(
+            self._raw_metadata_loader(),
+            self._config_type,
+        )
+        return ConfigWrapper(
+            config=values,
+            metadata=metadata,
         )
 
 
@@ -134,6 +154,10 @@ class FlatSource(Source, ABC):
     def _load_raw(self) -> dict[str, Any]:
         raise NotImplementedError
 
+    @abstractmethod
+    def _load_metadata(self) -> dict[str, Any]:
+        raise NotImplementedError
+
     def _make_loader(
             self,
             loading_retort: Retort,
@@ -145,4 +169,5 @@ class FlatSource(Source, ABC):
             dumping_retort=dumping_retort,
             config_type=config_type,
             raw_loader=self._load_raw,
+            raw_metadata_loader=self._load_metadata(),
         )

@@ -4,11 +4,13 @@ from typing import Any
 from adaptix import Provider, Retort
 
 from fuente.dict_provider import ModelToDictLoaderProvider
+from fuente.entities import SrcMetadata
 from fuente.error_mode import ErrorMode
 from fuente.protocols import (
     ConfigDictT,
     ConfigSourceLoader,
     ConfigT,
+    ConfigWrapper,
     RawConfigSourceLoader,
     Source,
 )
@@ -28,7 +30,11 @@ class NestedSourceLoader(ConfigSourceLoader, ABC):
 
     def load(self):
         raw = self.raw_loader()
-        return self.loading_retort.load(raw, self.config_type)
+        values = self.loading_retort.load(raw, self.config_type)
+        return ConfigWrapper(
+            config=values,
+            metadata=SrcMetadata(),
+        )
 
 
 class NestedSource(Source, ABC):
